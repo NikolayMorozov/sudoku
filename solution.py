@@ -49,7 +49,7 @@ def isThereNT(values, unit):
         values(dict): a dictionary of the form {'box_name': '123456789', ...}
         unit(list): a list of boxes within unit ['A1', ...]
     Returns:
-        NT(dict): a dictionary of Naked Twins {box_value: count, ...}
+        NT(set): a set of Naked Twins {box_value, ...}
         
     '''
     # count values within unit
@@ -75,11 +75,12 @@ def naked_twins(values):
         the values dictionary with the naked twins eliminated from peers.
     """
     
-    # making a copy of values dict to preserve initial state
+    # creating a newValues dict to to store intermediate results
     newValues = dict()
     for unit in unitlist:
         # Find all instances of naked twins
-        setNT = isThereNT(values, unit)  
+        setNT = isThereNT(values, unit)
+        # looping over naked twins and removing digits form their peers
         while len(setNT) > 0:
 
             NT = str(setNT.pop())
@@ -89,11 +90,11 @@ def naked_twins(values):
             # Eliminate the naked twins as possibilities for their peers
             for box in unit:
                 if ((d0 in values[box]) or (d1 in values[box])) and (NT != values[box]):
-                    newV = values[box]
-                    newV = newV.replace(d0,'')
-                    newV = newV.replace(d1,'')
-                    newValues[box] = newV
-        
+                    newValues[box] = values[box].replace(d0,'')
+                    newValues[box] = newValues[box].replace(d1,'')
+
+    
+    # propagating updated boxes to original instance of values    
     for v in newValues:
         values[v] = newValues[v]  
     
