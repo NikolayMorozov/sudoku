@@ -3,11 +3,15 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+A: Naked Twins technique of dealing with special case, it is a set of exactly two candidates that are in exactly two squares in a row, column, or block. The way to solve this problem with constant propagation approach is to introduce constrain that digits identified as naked twins can be removed out of consideration for any other box within the unit that contains naked twins. Implementation can viewed in a tree steps process:
+ - identify presence of naked twins
+ - remove digits that correspond to naked twins form any other box of the unit
+ - return updated set of values  
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+A: As diagonal sudoku is a variation of regular sudoku, that among the two main diagonals may contain only single appearance of 1-9 number. The way solve this problem with constraint propagation is to define and introduce corresponding additional constraints. My implementation resulted in forming diag1 and diag2 units that represent two main diagonals and then adding both of them to already existing unitlist. Introduction of this extra constrain allowed existing algorithm to solve the problem. 
+
 
 ### Install
 

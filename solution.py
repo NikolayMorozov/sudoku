@@ -42,6 +42,30 @@ def assign_value(values, box, value):
         assignments.append(values.copy())
     return values
 
+
+def isThereNT(values, unit):
+    '''Function identifies naked_twins within given unit
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+        unit(list): a list of boxes within unit ['A1', ...]
+    Returns:
+        NT(dict): a dictionary of Naked Twins {box_value: count, ...}
+        
+    '''
+    # count values within unit
+    count = {}
+    for box in unit:
+        # condition that satisfy naked twins definition 
+        if len(values[box])==2:
+            if values[box] in count:
+                count[values[box]]+=1
+            else:
+                count[values[box]] = 1
+    # naked twins set
+    NT = {c for c in count if count[c] == 2}
+    return NT
+
+
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
     Args:
@@ -51,12 +75,30 @@ def naked_twins(values):
         the values dictionary with the naked twins eliminated from peers.
     """
     
-#    for unit in unitlist:
+    # making a copy of values dict to preserve initial state
+    newValues = dict()
+    for unit in unitlist:
+        # Find all instances of naked twins
+        setNT = isThereNT(values, unit)  
+        while len(setNT) > 0:
+
+            NT = str(setNT.pop())
+            
+            d0 = NT[0]
+            d1 = NT[1]
+            # Eliminate the naked twins as possibilities for their peers
+            for box in unit:
+                if ((d0 in values[box]) or (d1 in values[box])) and (NT != values[box]):
+                    newV = values[box]
+                    newV = newV.replace(d0,'')
+                    newV = newV.replace(d1,'')
+                    newValues[box] = newV
         
-
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
-
+    for v in newValues:
+        values[v] = newValues[v]  
+    
+   
+    return values
 
 
 def grid_values(grid):
