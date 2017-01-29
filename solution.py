@@ -19,16 +19,10 @@ diag1 = [rows[i] + cols[i] for i in range(len(rows))]
 diag2 = [rows[i] + cols[-i-1] for i in range(len(rows))]
 diag_units = [diag1, diag2]
 
-#print row_units
-#print column_units
-#print square_units
-#print diag_units
-
 unitlist = row_units + column_units + square_units + diag_units
 
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
-
 
 assignments = []
 
@@ -74,7 +68,6 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-    
     # creating a newValues dict to to store intermediate results
     newValues = dict()
     for unit in unitlist:
@@ -82,9 +75,7 @@ def naked_twins(values):
         setNT = isThereNT(values, unit)
         # looping over naked twins and removing digits form their peers
         while len(setNT) > 0:
-
             NT = str(setNT.pop())
-            
             d0 = NT[0]
             d1 = NT[1]
             # Eliminate the naked twins as possibilities for their peers
@@ -93,12 +84,9 @@ def naked_twins(values):
                     newValues[box] = values[box].replace(d0,'')
                     newValues[box] = newValues[box].replace(d1,'')
 
-    
     # propagating updated boxes to original instance of values    
     for v in newValues:
-        values[v] = newValues[v]  
-    
-   
+        values[v] = newValues[v]
     return values
 
 
@@ -112,9 +100,6 @@ def grid_values(grid):
             Keys: The boxes, e.g., 'A1'
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
-#    print len(grid)
-#    print 'grid', grid
-#    print grid[0]
     chars = []
     digits = '123456789'
     for c in grid:
@@ -140,32 +125,42 @@ def display(values):
     return
 
 def eliminate(values):
+    """
+    Go through all the boxes, and whenever there is a box with a value, eliminate this value from the values of all its peers.
+    Input: A sudoku in dictionary form.
+    Output: The resulting sudoku in dictionary form.
+    """
     sDict = {i:values[i] for i in values if len(values[i]) == 1}
-        
+    
     for i in sDict:
-        for j in values:
-            if i in peers[j]:
-                values[j] = values[j].replace(sDict[i], '')
+        for peer in peers[i]:
+                values[peer] = values[peer].replace(sDict[i], '')
     return values
 
 def only_choice(values):
+    """
+    Go through all the units, and whenever there is a unit with a value that only fits in one box, assign the value to this box.
+    Input: A sudoku in dictionary form.
+    Output: The resulting sudoku in dictionary form.
+    """
     for unit in unitlist:
         for d in '123456789':
             ll = [box for box in unit if d in values[box]]
             if len(ll) == 1:
                 values[ll[0]] = d
-    
-       
-          
     return values
 
 def reduce_puzzle(values):
+    """
+    Iterate eliminate() and only_choice(). If at some point, there is a box with no available values, return False.
+    If the sudoku is solved, return the sudoku.
+    If after an iteration of both functions, the sudoku remains the same, return the sudoku.
+    Input: A sudoku in dictionary form.
+    Output: The resulting sudoku in dictionary form.
+    """
     if type(values) == type('str'):
         values = grid_values(values)
-        
-        
-    solved_values = [box for box in values.keys() if len(values[box]) == 1]
-    
+               
     stalled = False
     while not stalled:
         # Check how many boxes have a determined value
@@ -188,18 +183,21 @@ def reduce_puzzle(values):
     return values
 
 def solve(values):
-#    values = grid_values(grid)
+    '''
+    Solves sudoku recursively with depth-first search approach.
+    Input: A sudoku in dictionary form.
+    Output: The resulting sudoku in dictionary form. 
+    '''
     "Using depth-first search and propagation, try all possible values."
     # First, reduce the puzzle using the previous function
     values = reduce_puzzle(values)
-#    print values
     
     if values is False:
         return False ## Failed earlier
     if all(len(values[s]) == 1 for s in boxes): 
         return values ## Solved!
     # Chose one of the unfilled square s with the fewest possibilities
-    n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
+    _, s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
     # Now use recurrence to solve each one of the resulting sudokus, and 
     for value in values[s]:
         new_sudoku = values.copy()
@@ -209,37 +207,13 @@ def solve(values):
             return attempt
 
 def search(values):
-    "Using depth-first search and propagation, try all possible values."
-    # First, reduce the puzzle using the previous function
-    values = reduce_puzzle(values)
-    if values is False:
-        return False ## Failed earlier
-    if all(len(values[s]) == 1 for s in boxes): 
-        return values ## Solved!
-    # Chose one of the unfilled square s with the fewest possibilities
-    n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
-    # Now use recurrence to solve each one of the resulting sudokus, and 
-    for value in values[s]:
-        new_sudoku = values.copy()
-        new_sudoku[s] = value
-        attempt = search(new_sudoku)
-        if attempt:
-            return attempt
+    '''
+        same as solve(values), to maintain code compatibility with unit tests
+    '''
+    solve(values)
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    
-#    grid2 = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
-#    grid1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
-    
-#    diag_sudoku_grid = grid2
-    
-#    gv = grid_values(diag_sudoku_grid)
-#    print gv
-#    sol = solve(gv)
-#    print sol
-
-
     display(solve(grid_values(diag_sudoku_grid)))
 
     try:
