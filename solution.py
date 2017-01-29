@@ -1,13 +1,10 @@
 
-
-
 rows = 'ABCDEFGHI'
 cols = '123456789'
 
 def cross(a, b):
     "Cross product of elements in A and elements in B."
     return [s+t for s in a for t in b]
-
 
 boxes = cross(rows, cols)
 
